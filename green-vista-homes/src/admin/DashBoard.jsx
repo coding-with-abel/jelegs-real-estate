@@ -44,7 +44,7 @@ const Dashboard = () => {
 
                 <Link
                     to="/admin/projects"
-                    className="bg-blue-700 text-white px-6 py-4 rounded-lg"
+                    className="bg-green-700 text-white px-6 py-4 rounded-lg"
                 >
                     Manage Projects
                 </Link>
@@ -52,7 +52,7 @@ const Dashboard = () => {
                 {userRole === "owner" && (
                     <Link
                         to="/admin/manage-admins"
-                        className="bg-purple-700 text-white px-6 py-4 rounded-lg"
+                        className="bg-green-700 text-white px-6 py-4 rounded-lg"
                     >
                         Manage Admins
                     </Link>
