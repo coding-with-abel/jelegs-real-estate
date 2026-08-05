@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Projects from "./pages/Projects.jsx";
-import AdminLogin from "./admin/AdminLogin.jsx";
-import Dashboard from "./admin/Dashboard.jsx";
+import AdminLogin from "./admin/AdminLogin";
+import Dashboard from "./admin/Dashboard";
 import AddProject from "./admin/AddProject";
-import ProjectsManage from "./admin/Projects.jsx";
-import EditProject from "./admin/EditProject.jsx";
-import RegisterAdmin from "./admin/RegisterAdmin.jsx";
-import ManageAdmins from "./admin/ManageAdmins.jsx";
+import ProjectsManage from "./admin/Projects";
+import EditProject from "./admin/EditProject";
+import RegisterAdmin from "./admin/RegisterAdmin";
+import ManageAdmins from "./admin/ManageAdmins";
 
 
 export default function App() {
