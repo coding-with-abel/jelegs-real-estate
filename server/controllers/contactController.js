@@ -5,16 +5,18 @@ export const sendEmail = async (req, res) => {
 
     try {
         const transporter = nodemailer.createTransport({
-            service: "gmail",
+            host: "smtp-relay.brevo.com",
+            port: 587,
+            secure: false,
             auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
+                user: "b48bc2001@smtp-brevo.com",
+                pass: "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",
             },
         });
 
         await transporter.sendMail({
-            from: `"Jelegs Real Estate Website" <${process.env.EMAIL_USER}>`,
-            to: "jelegsrealestate@outlook.com", // ← Changed to new email
+            from: "Jelegs Real Estate <noreply@jelegsrealestate.com>",
+            to: "jelegsrealestate@outlook.com",
             replyTo: email,
             subject: `New Property Enquiry from ${name}`,
             html: `
