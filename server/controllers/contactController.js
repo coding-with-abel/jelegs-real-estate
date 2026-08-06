@@ -9,8 +9,8 @@ export const sendEmail = async (req, res) => {
             port: 587,
             secure: false,
             auth: {
-                user: "b48bc2001@smtp-brevo.com",
-                pass: "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",
+                user: process.env.BREVO_SMTP_USER,
+                pass: process.env.BREVO_SMTP_PASS,
             },
         });
 
