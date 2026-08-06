@@ -25,7 +25,7 @@ const EditProject = () => {
         const fetchProject = async () => {
             try {
                 const response = await fetch(
-                    `https://jelegs-backend-cms.onrender.com/api/projects/${id}`
+                    `http://localhost:5000/api/projects/${id}`
                 );
                 const data = await response.json();
 
@@ -82,6 +82,13 @@ const EditProject = () => {
         setImagePreviews(imagePreviews.filter((_, i) => i !== index));
     };
 
+    const handleRemoveExistingImage = (index) => {
+        setProject({
+            ...project,
+            images: project.images.filter((_, i) => i !== index),
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -104,7 +111,7 @@ const EditProject = () => {
             });
 
             const response = await fetch(
-                `https://jelegs-backend-cms.onrender.com/api/projects/${id}`,
+                `http://localhost:5000/api/projects/${id}`,
                 {
                     method: "PUT",
                     headers: {
@@ -232,6 +239,13 @@ const EditProject = () => {
                                         alt={`Current ${index + 1}`}
                                         className="w-full h-32 object-cover rounded border"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemoveExistingImage(index)}
+                                        className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
+                                    >
+                                        ✕
+                                    </button>
                                 </div>
                             ))}
                         </div>
