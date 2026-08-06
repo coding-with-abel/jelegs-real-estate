@@ -15,7 +15,7 @@ export const sendEmail = async (req, res) => {
         });
 
         await transporter.sendMail({
-            from: "Jelegs Real Estate <noreply@jelegsrealestate.com>",
+            from: `${name} <${email}>`,
             to: "jelegsrealestate@outlook.com",
             replyTo: email,
             subject: `New Property Enquiry from ${name}`,
