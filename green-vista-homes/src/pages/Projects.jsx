@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowLeft, BedDouble, Bath, MapPin } from "lucide-react";
+import { ArrowLeft, BedDouble, Bath, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader.jsx";
 import { SiteFooter } from "@/components/SiteFooter.jsx";
 import { Reveal } from "@/components/Reveal.jsx";
@@ -8,6 +8,7 @@ import { Reveal } from "@/components/Reveal.jsx";
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState({});
 
   useEffect(() => {
     document.title = "Projects — Verdant Estates";
@@ -17,12 +18,17 @@ export default function Projects() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch("https://jelegs-backend-cms.onrender.com/api/projects");
+        const response = await fetch("http://localhost:5000/api/projects");
         const data = await response.json();
 
         if (data.success) {
-          // Only show featured/published projects
           setProjects(data.projects.filter(p => p.featured === true));
+          // Initialize image index for each project
+          const indexes = {};
+          data.projects.forEach(p => {
+            indexes[p._id] = 0;
+          });
+          setCurrentImageIndex(indexes);
         }
       } catch (error) {
         console.error("Failed to fetch projects:", error);
@@ -33,6 +39,27 @@ export default function Projects() {
 
     fetchProjects();
   }, []);
+
+  const handlePrevImage = (projectId, totalImages) => {
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [projectId]: prev[projectId] === 0 ? totalImages - 1 : prev[projectId] - 1
+    }));
+  };
+
+  const handleNextImage = (projectId, totalImages) => {
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [projectId]: prev[projectId] === totalImages - 1 ? 0 : prev[projectId] + 1
+    }));
+  };
+
+  const handleDotClick = (projectId, index) => {
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [projectId]: index
+    }));
+  };
 
   if (loading) {
     return (
@@ -72,50 +99,102 @@ export default function Projects() {
           {projects.length === 0 ? (
             <p className="text-center text-muted-foreground">No projects published yet.</p>
           ) : (
-            projects.map((p, i) => (
-              <Reveal key={p._id}>
-                <article className={`grid gap-8 md:gap-12 md:grid-cols-2 items-center ${i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""}`}>
-                  <div className="overflow-hidden rounded-3xl shadow-[var(--shadow-elegant)]">
-                    {p.images && p.images.length > 0 ? (
-                      <img
-                        src={p.images[0]}
-                        alt={p.name}
-                        loading="lazy"
-                        className="w-full aspect-[4/3] object-cover hover:scale-105 transition-transform duration-700"
-                      />
-                    ) : (
-                      <div className="w-full aspect-[4/3] bg-secondary flex items-center justify-center">
-                        <span className="text-muted-foreground">No image available</span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4" /> {p.location}
-                    </div>
-                    <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">{p.name}</h2>
-                    <p className="mt-5 text-base text-muted-foreground leading-relaxed">{p.description}</p>
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm"><BedDouble className="h-4 w-4 text-primary" /> {p.beds} bedrooms</span>
-                      <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm"><Bath className="h-4 w-4 text-primary" /> {p.baths} bathrooms</span>
-                      {p.features && p.features.length > 0 && (
-                        p.features.map((feature, idx) => (
-                          <span key={idx} className="inline-flex items-center rounded-full bg-secondary px-4 py-2 text-sm">
-                            {feature}
-                          </span>
-                        ))
+            projects.map((p, i) => {
+              const currentIndex = currentImageIndex[p._id] || 0;
+              const totalImages = p.images?.length || 0;
+
+              return (
+                <Reveal key={p._id}>
+                  <article className={`grid gap-8 md:gap-12 md:grid-cols-2 items-center ${i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""}`}>
+                    {/* Image Carousel */}
+                    <div className="overflow-hidden rounded-3xl shadow-[var(--shadow-elegant)]">
+                      {p.images && p.images.length > 0 ? (
+                        <div className="relative">
+                          <img
+                            src={p.images[currentIndex]}
+                            alt={p.name}
+                            loading="lazy"
+                            className="w-full aspect-[4/3] object-cover hover:scale-105 transition-transform duration-700"
+                          />
+
+                          {/* Prev/Next Buttons */}
+                          {totalImages > 1 && (
+                            <>
+                              <button
+                                onClick={() => handlePrevImage(p._id, totalImages)}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition"
+                              >
+                                <ChevronLeft className="h-5 w-5" />
+                              </button>
+                              <button
+                                onClick={() => handleNextImage(p._id, totalImages)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition"
+                              >
+                                <ChevronRight className="h-5 w-5" />
+                              </button>
+                            </>
+                          )}
+
+                          {/* Dots Indicator */}
+                          {totalImages > 1 && (
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                              {p.images.map((_, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => handleDotClick(p._id, idx)}
+                                  className={`h-2 rounded-full transition ${
+                                    idx === currentIndex
+                                      ? "w-6 bg-white"
+                                      : "w-2 bg-white/50 hover:bg-white/70"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Image Counter */}
+                          {totalImages > 1 && (
+                            <div className="absolute top-3 right-3 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                              {currentIndex + 1} / {totalImages}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="w-full aspect-[4/3] bg-secondary flex items-center justify-center">
+                          <span className="text-muted-foreground">No image available</span>
+                        </div>
                       )}
                     </div>
-                    <Link
-                      to="/#contact"
-                      className="mt-8 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 transition"
-                    >
-                      Enquire about this home
-                    </Link>
-                  </div>
-                </article>
-              </Reveal>
-            ))
+
+                    {/* Project Details */}
+                    <div>
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5" /> {p.location}
+                      </div>
+                      <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">{p.name}</h2>
+                      <p className="mt-5 text-base text-muted-foreground leading-relaxed">{p.description}</p>
+                      <div className="mt-6 flex flex-wrap gap-3">
+                        <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm"><BedDouble className="h-4 w-4 text-primary" /> {p.beds} bedrooms</span>
+                        <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm"><Bath className="h-4 w-4 text-primary" /> {p.baths} bathrooms</span>
+                        {p.features && p.features.length > 0 && (
+                          p.features.map((feature, idx) => (
+                            <span key={idx} className="inline-flex items-center rounded-full bg-secondary px-4 py-2 text-sm">
+                              {feature}
+                            </span>
+                          ))
+                        )}
+                      </div>
+                      <Link
+                        to="/#contact"
+                        className="mt-8 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 transition"
+                      >
+                        Enquire about this home
+                      </Link>
+                    </div>
+                  </article>
+                </Reveal>
+              );
+            })
           )}
         </div>
       </section>
