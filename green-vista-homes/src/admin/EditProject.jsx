@@ -25,7 +25,7 @@ const EditProject = () => {
         const fetchProject = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/projects/${id}`
+                    `https://jelegs-backend-cms.onrender.com/api/projects/${id}`
                 );
                 const data = await response.json();
 
@@ -114,7 +114,7 @@ const EditProject = () => {
             });
 
             const response = await fetch(
-                `http://localhost:5000/api/projects/${id}`,
+                `https://jelegs-backend-cms.onrender.com/api/projects/${id}`,
                 {
                     method: "PUT",
                     headers: {
