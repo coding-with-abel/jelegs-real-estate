@@ -23,7 +23,6 @@ export default function Projects() {
 
         if (data.success) {
           setProjects(data.projects.filter(p => p.featured === true));
-          // Initialize image index for each project
           const indexes = {};
           data.projects.forEach(p => {
             indexes[p._id] = 0;
@@ -109,7 +108,7 @@ export default function Projects() {
                     {/* Image Carousel */}
                     <div className="overflow-hidden rounded-3xl shadow-[var(--shadow-elegant)]">
                       {p.images && p.images.length > 0 ? (
-                        <div className="relative">
+                        <div className="relative w-full">
                           <img
                             src={p.images[currentIndex]}
                             alt={p.name}
@@ -117,44 +116,47 @@ export default function Projects() {
                             className="w-full aspect-[4/3] object-cover hover:scale-105 transition-transform duration-700"
                           />
 
-                          {/* Prev/Next Buttons */}
+                          {/* Prev/Next Buttons - Mobile & Desktop */}
                           {totalImages > 1 && (
                             <>
                               <button
                                 onClick={() => handlePrevImage(p._id, totalImages)}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition"
+                                className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 rounded-full transition"
+                                aria-label="Previous image"
                               >
-                                <ChevronLeft className="h-5 w-5" />
+                                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                               </button>
                               <button
                                 onClick={() => handleNextImage(p._id, totalImages)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition"
+                                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 rounded-full transition"
+                                aria-label="Next image"
                               >
-                                <ChevronRight className="h-5 w-5" />
+                                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                               </button>
                             </>
                           )}
 
-                          {/* Dots Indicator */}
+                          {/* Dots Indicator - Mobile & Desktop */}
                           {totalImages > 1 && (
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
                               {p.images.map((_, idx) => (
                                 <button
                                   key={idx}
                                   onClick={() => handleDotClick(p._id, idx)}
-                                  className={`h-2 rounded-full transition ${
+                                  className={`rounded-full transition ${
                                     idx === currentIndex
-                                      ? "w-6 bg-white"
-                                      : "w-2 bg-white/50 hover:bg-white/70"
+                                      ? "w-5 sm:w-6 h-2 bg-white"
+                                      : "w-2 h-2 bg-white/50 hover:bg-white/70"
                                   }`}
+                                  aria-label={`Go to image ${idx + 1}`}
                                 />
                               ))}
                             </div>
                           )}
 
-                          {/* Image Counter */}
+                          {/* Image Counter - Mobile & Desktop */}
                           {totalImages > 1 && (
-                            <div className="absolute top-3 right-3 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                            <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-black/50 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
                               {currentIndex + 1} / {totalImages}
                             </div>
                           )}

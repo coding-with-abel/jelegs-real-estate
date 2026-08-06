@@ -105,6 +105,9 @@ const EditProject = () => {
             formData.append("featured", project.featured);
             formData.append("features", JSON.stringify(project.features));
 
+            // Send current images (including removed ones filtered out)
+            formData.append("currentImages", JSON.stringify(project.images || []));
+
             // Add new images if selected
             selectedImages.forEach((image) => {
                 formData.append("images", image);

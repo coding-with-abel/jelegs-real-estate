@@ -130,7 +130,6 @@ export const updateProject = async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Get new image URLs from Cloudinary if any were uploaded
         const newImageUrls = req.files 
             ? req.files.map(file => file.path)
             : [];
@@ -139,26 +138,22 @@ export const updateProject = async (req, res) => {
             ? JSON.parse(req.body.features)
             : [];
 
+        // Get current images that user wants to keep
+        const currentImages = req.body.currentImages 
+            ? JSON.parse(req.body.currentImages)
+            : [];
+
         const updateData = {
             name: req.body.name,
             location: req.body.location,
-            beds: req.body.beds ? Number(req.body.beds) : undefined, // ← Add validation
-            baths: req.body.baths ? Number(req.body.baths) : undefined, // ← Add validation
+            beds: Number(req.body.beds),
+            baths: Number(req.body.baths),
             description: req.body.description,
             featured: req.body.featured === 'true' || req.body.featured === true,
             features: features,
+            // Combine kept images with new ones
+            images: [...currentImages, ...newImageUrls],
         };
-
-        // Remove undefined values so they don't overwrite existing data
-        Object.keys(updateData).forEach(key => 
-            updateData[key] === undefined && delete updateData[key]
-        );
-
-        // If new images were uploaded, add them to existing images
-        if (newImageUrls.length > 0) {
-            const existingProject = await Project.findById(id);
-            updateData.images = [...(existingProject.images || []), ...newImageUrls];
-        }
 
         const project = await Project.findByIdAndUpdate(
             id,
