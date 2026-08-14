@@ -138,7 +138,6 @@ export const updateProject = async (req, res) => {
             ? JSON.parse(req.body.features)
             : [];
 
-        // Get current images that user wants to keep
         const currentImages = req.body.currentImages 
             ? JSON.parse(req.body.currentImages)
             : [];
@@ -146,14 +145,18 @@ export const updateProject = async (req, res) => {
         const updateData = {
             name: req.body.name,
             location: req.body.location,
-            beds: Number(req.body.beds),
-            baths: Number(req.body.baths),
+            beds: req.body.beds ? Number(req.body.beds) : undefined,
+            baths: req.body.baths ? Number(req.body.baths) : undefined,
             description: req.body.description,
             featured: req.body.featured === 'true' || req.body.featured === true,
             features: features,
-            // Combine kept images with new ones
             images: [...currentImages, ...newImageUrls],
         };
+
+        // Remove undefined values
+        Object.keys(updateData).forEach(key => 
+            updateData[key] === undefined && delete updateData[key]
+        );
 
         const project = await Project.findByIdAndUpdate(
             id,
