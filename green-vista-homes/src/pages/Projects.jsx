@@ -110,11 +110,11 @@ export default function Projects() {
                       {p.images && p.images.length > 0 ? (
                         <div className="relative w-full">
                           <img
-                            src={p.images[currentIndex]}
-                            alt={p.name}
-                            loading="lazy"
-                            className="w-full aspect-[4/3] object-cover hover:scale-105 transition-transform duration-700"
-                          />
+    						src={`${p.images[currentIndex]}?w=800&q=auto&f=auto`}
+    						alt={p.name}
+    						loading="lazy"
+    						className="w-full aspect-[4/3] object-cover hover:scale-105 transition-transform duration-700"
+						/>
 
                           {/* Prev/Next Buttons - Mobile & Desktop */}
                           {totalImages > 1 && (

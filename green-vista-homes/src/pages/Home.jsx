@@ -269,7 +269,7 @@ export default function Home() {
             <div className="rounded-3xl overflow-hidden bg-[var(--gradient-primary)] shadow-[var(--shadow-elegant)]">
               <div className="grid md:grid-cols-2 gap-0">
                 <div className="p-8 sm:p-12 text-primary">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/80">Contact</span>
+                  <span className="text-sm font-bold uppercase tracking-widest text-primary">Contact Us</span>
                   <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">Own a home built for your future.</h2>
                   <p className="mt-4 text-primary">
                     Tell us what you want — a quiet retreat, a family home, an investment. We'll build, shortlist properties matched to your life.

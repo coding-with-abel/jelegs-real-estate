@@ -1,5 +1,6 @@
 import { Instagram, Phone } from "lucide-react";
-import logo from "@/assets/logo.png"; // ← Add this import
+import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 export function SiteFooter() {
   return (
@@ -20,7 +21,17 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-background">Follow </h4>
+          <h4 className="text-sm font-semibold text-background">Quick Links</h4>
+          <div className="mt-4 space-y-2 text-sm">
+            <div><Link to="/" className="text-background/70 hover:text-background transition">Home</Link></div>
+            <div><Link to="/#about" className="text-background/70 hover:text-background transition">About</Link></div>
+            <div><Link to="/projects" className="text-background/70 hover:text-background transition">Projects</Link></div>
+            <div><Link to="/#contact" className="text-background/70 hover:text-background transition">Contact</Link></div>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-semibold text-background">Follow</h4>
           <div className="mt-4 flex gap-3">
             <a className="grid h-9 w-9 place-items-center rounded-full bg-background/10 hover:bg-primary transition" href="https://www.instagram.com/jelegslimited?utm_source=qr"><Instagram className="h-4 w-4"/></a>
             <a className="grid h-9 w-9 place-items-center rounded-full bg-background/10 hover:bg-primary transition" href="#"><Phone className="h-4 w-4"/></a>
