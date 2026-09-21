@@ -31,7 +31,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-background">Follow</h4>
+          <h4 className="text-sm font-semibold text-background">Follow Our Socials</h4>
           <div className="mt-4 flex gap-3">
             <a className="grid h-9 w-9 place-items-center rounded-full bg-background/10 hover:bg-primary transition" href="https://www.instagram.com/jelegslimited?utm_source=qr"><Instagram className="h-4 w-4"/></a>
             <a className="grid h-9 w-9 place-items-center rounded-full bg-background/10 hover:bg-primary transition" href="#"><Phone className="h-4 w-4"/></a>
