@@ -5,6 +5,7 @@ const RegisterAdmin = () => {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
+        name: "",
         username: "",
         email: "",
         password: "",
@@ -79,6 +80,20 @@ const RegisterAdmin = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
+
+                <div>
+                    <label className="block text-sm font-medium mb-2">
+                        Full name
+                    </label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="w-full border rounded p-3"
+                        required
+                    />
+                </div>
 
                 <div>
                     <label className="block text-sm font-medium mb-2">

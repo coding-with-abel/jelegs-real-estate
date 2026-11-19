@@ -7,6 +7,32 @@ import { SiteFooter } from "@/components/SiteFooter.jsx";
 import { Reveal } from "@/components/Reveal.jsx";
 import hero from "@/assets/hero.jpg";
 
+// Cloudinary transformations go inside the URL path, not in a query string
+const optimize = (url, width = 800) =>
+  url && url.includes("/upload/")
+    ? url.replace("/upload/", `/upload/w_${width},q_auto,f_auto/`)
+    : url;
+
+function FeaturedSkeleton() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading project"
+      className="animate-pulse overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-card)] border border-border/60 h-full flex flex-col"
+    >
+      <div className="aspect-[4/3] w-full bg-muted" />
+      <div className="p-5 flex-1 flex flex-col">
+        <div className="h-3.5 w-40 rounded-full bg-muted" />
+        <div className="mt-3 h-5 w-2/3 rounded-lg bg-muted" />
+        <div className="mt-4 flex items-center gap-4 pt-4 border-t border-border/60">
+          <div className="h-4 w-10 rounded bg-muted" />
+          <div className="h-4 w-10 rounded bg-muted" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
 
     const [formData, setFormData] = useState({
@@ -17,6 +43,7 @@ export default function Home() {
 
   const [loading, setLoading] = useState(false);
   const [featured, setFeatured] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
 
   const handleChange = (e) => {
     setFormData({
@@ -81,6 +108,8 @@ export default function Home() {
         }
       } catch (error) {
         console.error("Failed to fetch projects:", error);
+      } finally {
+        setProjectsLoading(false);
       }
     };
 
@@ -139,14 +168,14 @@ export default function Home() {
           >
             <Link
               to="/projects"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm sm:text-base font-medium text-primary-foreground shadow-lg hover:opacity-90 transition"
+              className="group inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm sm:text-base font-medium text-primary-foreground shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
             >
               Explore Projects
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
               href="#about"
-              className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-6 py-3 text-sm sm:text-base font-medium text-white ring-1 ring-white/25 hover:bg-white/20 transition"
+              className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur px-6 py-3 text-sm sm:text-base font-medium text-white ring-1 ring-white/25 hover:bg-white/20 transition-all duration-200 hover:scale-105 active:scale-95"
             >
               Learn more
             </a>
@@ -227,36 +256,44 @@ export default function Home() {
           </div>
 
           <div className="mt-10 grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p, i) => (
-              <Reveal key={p._id} delay={i * 0.12}>
-                <article className="group overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-card)] border border-border/60 h-full flex flex-col">
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    {p.images && p.images.length > 0 ? (
-                      <img
-                        src={p.images[0]}
-                        alt={p.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-secondary flex items-center justify-center">
-                        <span className="text-muted-foreground">No image</span>
+            {projectsLoading ? (
+              <>
+                <FeaturedSkeleton />
+                <FeaturedSkeleton />
+                <FeaturedSkeleton />
+              </>
+            ) : (
+              featured.map((p, i) => (
+                <Reveal key={p._id} delay={i * 0.12}>
+                  <article className="group overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-card)] border border-border/60 h-full flex flex-col transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl">
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      {p.images && p.images.length > 0 ? (
+                        <img
+                          src={optimize(p.images[0])}
+                          alt={p.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-secondary flex items-center justify-center">
+                          <span className="text-muted-foreground">No image</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-5 flex-1 flex flex-col">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5" /> {p.location}
                       </div>
-                    )}
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5" /> {p.location}
+                      <h3 className="mt-2 text-lg font-semibold">{p.name}</h3>
+                      <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground pt-4 border-t border-border/60">
+                        <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" /> {p.beds}</span>
+                        <span className="flex items-center gap-1.5"><Bath className="h-4 w-4" /> {p.baths}</span>
+                      </div>
                     </div>
-                    <h3 className="mt-2 text-lg font-semibold">{p.name}</h3>
-                    <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground pt-4 border-t border-border/60">
-                      <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" /> {p.beds}</span>
-                      <span className="flex items-center gap-1.5"><Bath className="h-4 w-4" /> {p.baths}</span>
-                    </div>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
+                  </article>
+                </Reveal>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -302,7 +339,11 @@ export default function Home() {
                     <label className="text-xs font-medium text-muted-foreground">What are you looking for?</label>
                     <textarea rows={4} name="message" value={formData.message} onChange={handleChange} className="mt-1 w-full rounded-lg border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none" placeholder="A family home near the coast..." />
                   </div>
-                  <button type="submit" disabled={loading} className="w-full rounded-full bg-primary py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full rounded-full bg-primary py-3 text-sm font-medium text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+                  >
                     {loading ? "Sending..." : "Send message"}
                   </button>
                 </form>

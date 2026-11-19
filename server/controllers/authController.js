@@ -46,6 +46,7 @@ export const loginAdmin = async (req, res) => {
             token,
             admin: {
                 id: admin._id,
+                name: admin.name,
                 username: admin.username,
                 email: admin.email,
                 role: admin.role,
@@ -64,7 +65,7 @@ export const loginAdmin = async (req, res) => {
 
 export const registerAdmin = async (req, res) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { name, username, email, password, role } = req.body;
         const requestingAdminId = req.admin.id; // From protect middleware
 
         // Check if requesting admin is owner or manager
@@ -103,6 +104,7 @@ export const registerAdmin = async (req, res) => {
 
         // Create new admin
         const newAdmin = await Admin.create({
+            name,
             username,
             email,
             password: hashedPassword,
@@ -114,6 +116,7 @@ export const registerAdmin = async (req, res) => {
             message: "Admin created successfully!",
             admin: {
                 id: newAdmin._id,
+                name: newAdmin.name,
                 username: newAdmin.username,
                 email: newAdmin.email,
                 role: newAdmin.role,
@@ -204,6 +207,109 @@ export const deleteAdmin = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Failed to delete admin",
+        });
+    }
+};
+
+export const updateAdmin = async (req, res) => {
+    try {
+        const { adminId } = req.params;
+        const requestingAdminId = String(req.admin.id);
+
+        // Only owner can edit admins
+        const requestingAdmin = await Admin.findById(requestingAdminId);
+
+        if (!requestingAdmin || requestingAdmin.role !== "owner") {
+            return res.status(403).json({
+                success: false,
+                message: "Only owner can edit admins.",
+            });
+        }
+
+        const admin = await Admin.findById(adminId);
+
+        if (!admin) {
+            return res.status(404).json({
+                success: false,
+                message: "Admin not found.",
+            });
+        }
+
+        const { name, username, email, password, role } = req.body;
+
+        // Make sure the new username/email isn't used by someone else
+        const conditions = [];
+        if (username) conditions.push({ username: username.trim() });
+        if (email) conditions.push({ email: email.trim().toLowerCase() });
+
+        if (conditions.length > 0) {
+            const duplicate = await Admin.findOne({
+                _id: { $ne: adminId },
+                $or: conditions,
+            });
+
+            if (duplicate) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Email or username already exists.",
+                });
+            }
+        }
+
+        // Role changes: not on yourself, and only manager/viewer
+        if (role && role !== admin.role) {
+            if (adminId === requestingAdminId) {
+                return res.status(400).json({
+                    success: false,
+                    message: "You cannot change your own role.",
+                });
+            }
+
+            if (!["manager", "viewer"].includes(role)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid role.",
+                });
+            }
+
+            admin.role = role;
+        }
+
+        if (name !== undefined) admin.name = name;
+        if (username) admin.username = username;
+        if (email) admin.email = email;
+
+        // Password is optional: only changed when a new one is sent
+        if (password) {
+            if (password.length < 6) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Password must be at least 6 characters.",
+                });
+            }
+            admin.password = await bcrypt.hash(password, 10);
+        }
+
+        await admin.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Admin updated successfully!",
+            admin: {
+                _id: admin._id,
+                name: admin.name,
+                username: admin.username,
+                email: admin.email,
+                role: admin.role,
+            },
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to update admin",
         });
     }
 };

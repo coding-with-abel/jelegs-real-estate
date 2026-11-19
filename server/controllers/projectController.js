@@ -129,59 +129,47 @@ export const deleteProject = async (req, res) => {
 export const updateProject = async (req, res) => {
     try {
         const { id } = req.params;
+        const body = req.body;
 
-        const newImageUrls = req.files 
-            ? req.files.map(file => file.path)
-            : [];
+        const newImageUrls = req.files ? req.files.map((file) => file.path) : [];
 
-        const features = req.body.features 
-            ? JSON.parse(req.body.features)
-            : [];
+        const updateData = {};
 
-        const currentImages = req.body.currentImages 
-            ? JSON.parse(req.body.currentImages)
-            : [];
-
-        const updateData = {
-            name: req.body.name,
-            location: req.body.location,
-            beds: req.body.beds ? Number(req.body.beds) : undefined,
-            baths: req.body.baths ? Number(req.body.baths) : undefined,
-            description: req.body.description,
-            featured: req.body.featured === 'true' || req.body.featured === true,
-            features: features,
-            images: [...currentImages, ...newImageUrls],
-        };
-
-        // Remove undefined values
-        Object.keys(updateData).forEach(key => 
-            updateData[key] === undefined && delete updateData[key]
-        );
-
-        const project = await Project.findByIdAndUpdate(
-            id,
-            updateData,
-            { returnDocument: 'after' }
-        );
-
-        if (!project) {
-            return res.status(404).json({
-                success: false,
-                message: "Project not found",
-            });
+        if (body.name !== undefined) updateData.name = body.name;
+        if (body.location !== undefined) updateData.location = body.location;
+        if (body.description !== undefined) updateData.description = body.description;
+        if (body.beds) updateData.beds = Number(body.beds);
+        if (body.baths) updateData.baths = Number(body.baths);
+        if (body.featured !== undefined) {
+            updateData.featured = body.featured === "true" || body.featured === true;
+        }
+        if (body.features !== undefined) {
+            updateData.features = JSON.parse(body.features);
         }
 
-        res.status(200).json({
-            success: true,
-            project,
+        // Only touch images when the edit form sent them
+        if (body.currentImages !== undefined || newImageUrls.length > 0) {
+            let base;
+            if (body.currentImages !== undefined) {
+                base = JSON.parse(body.currentImages);
+            } else {
+                const existing = await Project.findById(id);
+                base = existing ? existing.images : [];
+            }
+            updateData.images = [...base, ...newImageUrls];
+        }
+
+        const project = await Project.findByIdAndUpdate(id, updateData, {
+            returnDocument: "after",
         });
 
+        if (!project) {
+            return res.status(404).json({ success: false, message: "Project not found" });
+        }
+
+        res.status(200).json({ success: true, project });
     } catch (error) {
         console.error(error);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to update project",
-        });
+        res.status(500).json({ success: false, message: "Failed to update project" });
     }
 };

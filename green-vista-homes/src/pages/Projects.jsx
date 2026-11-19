@@ -5,13 +5,50 @@ import { SiteHeader } from "@/components/SiteHeader.jsx";
 import { SiteFooter } from "@/components/SiteFooter.jsx";
 import { Reveal } from "@/components/Reveal.jsx";
 
+// Cloudinary transformations go inside the URL path, not in a query string
+const optimize = (url, width = 800) =>
+  url && url.includes("/upload/")
+    ? url.replace("/upload/", `/upload/w_${width},q_auto,f_auto/`)
+    : url;
+
+function ProjectSkeleton({ reverse }) {
+  return (
+    <article
+      role="status"
+      aria-label="Loading project"
+      className={`grid animate-pulse gap-8 md:gap-12 md:grid-cols-2 items-center ${
+        reverse ? "md:[&>*:first-child]:order-2" : ""
+      }`}
+    >
+      <div className="aspect-[4/3] w-full rounded-3xl bg-muted" />
+      <div>
+        <div className="h-4 w-44 rounded-full bg-muted" />
+        <div className="mt-4 h-10 w-3/4 rounded-lg bg-muted" />
+        <div className="mt-6 space-y-3">
+          <div className="h-4 w-full rounded bg-muted" />
+          <div className="h-4 w-5/6 rounded bg-muted" />
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <div className="h-10 w-32 rounded-full bg-muted" />
+          <div className="h-10 w-32 rounded-full bg-muted" />
+          <div className="h-10 w-28 rounded-full bg-muted" />
+          <div className="h-10 w-24 rounded-full bg-muted" />
+          <div className="h-10 w-32 rounded-full bg-muted" />
+          <div className="h-10 w-28 rounded-full bg-muted" />
+        </div>
+        <div className="mt-8 h-11 w-56 rounded-full bg-muted" />
+      </div>
+    </article>
+  );
+}
+
 export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState({});
 
   useEffect(() => {
-    document.title = "Projects — Verdant Estates";
+    document.title = "Projects — Jelegs Real Estate";
     window.scrollTo(0, 0);
   }, []);
 
@@ -22,9 +59,11 @@ export default function Projects() {
         const data = await response.json();
 
         if (data.success) {
-          setProjects(data.projects.filter(p => p.featured === true));
+          const published = data.projects.filter((p) => p.featured === true);
+          setProjects(published);
+
           const indexes = {};
-          data.projects.forEach(p => {
+          published.forEach((p) => {
             indexes[p._id] = 0;
           });
           setCurrentImageIndex(indexes);
@@ -40,37 +79,22 @@ export default function Projects() {
   }, []);
 
   const handlePrevImage = (projectId, totalImages) => {
-    setCurrentImageIndex(prev => ({
+    setCurrentImageIndex((prev) => ({
       ...prev,
-      [projectId]: prev[projectId] === 0 ? totalImages - 1 : prev[projectId] - 1
+      [projectId]: prev[projectId] === 0 ? totalImages - 1 : prev[projectId] - 1,
     }));
   };
 
   const handleNextImage = (projectId, totalImages) => {
-    setCurrentImageIndex(prev => ({
+    setCurrentImageIndex((prev) => ({
       ...prev,
-      [projectId]: prev[projectId] === totalImages - 1 ? 0 : prev[projectId] + 1
+      [projectId]: prev[projectId] === totalImages - 1 ? 0 : prev[projectId] + 1,
     }));
   };
 
   const handleDotClick = (projectId, index) => {
-    setCurrentImageIndex(prev => ({
-      ...prev,
-      [projectId]: index
-    }));
+    setCurrentImageIndex((prev) => ({ ...prev, [projectId]: index }));
   };
-
-  if (loading) {
-    return (
-      <div className="bg-background text-foreground">
-        <SiteHeader />
-        <div className="pt-32 pb-32 text-center">
-          <p>Loading projects...</p>
-        </div>
-        <SiteFooter />
-      </div>
-    );
-  }
 
   return (
     <div className="bg-background text-foreground">
@@ -95,7 +119,12 @@ export default function Projects() {
 
       <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 space-y-16 sm:space-y-24">
-          {projects.length === 0 ? (
+          {loading ? (
+            <>
+              <ProjectSkeleton />
+              <ProjectSkeleton reverse />
+            </>
+          ) : projects.length === 0 ? (
             <p className="text-center text-muted-foreground">No projects published yet.</p>
           ) : (
             projects.map((p, i) => {
@@ -105,60 +134,52 @@ export default function Projects() {
               return (
                 <Reveal key={p._id}>
                   <article className={`grid gap-8 md:gap-12 md:grid-cols-2 items-center ${i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""}`}>
-                    {/* Image Carousel */}
                     <div className="overflow-hidden rounded-3xl shadow-[var(--shadow-elegant)]">
-                      {p.images && p.images.length > 0 ? (
+                      {totalImages > 0 ? (
                         <div className="relative w-full">
                           <img
-    						src={`${p.images[currentIndex]}?w=800&q=auto&f=auto`}
-    						alt={p.name}
-    						loading="lazy"
-    						className="w-full aspect-[4/3] object-cover hover:scale-105 transition-transform duration-700"
-						/>
+                            src={optimize(p.images[currentIndex])}
+                            alt={p.name}
+                            loading="lazy"
+                            className="w-full aspect-[4/3] object-cover hover:scale-105 transition-transform duration-700"
+                          />
 
-                          {/* Prev/Next Buttons - Mobile & Desktop */}
                           {totalImages > 1 && (
                             <>
                               <button
                                 onClick={() => handlePrevImage(p._id, totalImages)}
-                                className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 rounded-full transition"
+                                className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 rounded-full transition-all duration-200 hover:scale-110 active:scale-90"
                                 aria-label="Previous image"
                               >
                                 <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                               </button>
                               <button
                                 onClick={() => handleNextImage(p._id, totalImages)}
-                                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 rounded-full transition"
+                                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1.5 sm:p-2 rounded-full transition-all duration-200 hover:scale-110 active:scale-90"
                                 aria-label="Next image"
                               >
                                 <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                               </button>
+
+                              <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
+                                {p.images.map((_, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => handleDotClick(p._id, idx)}
+                                    className={`rounded-full transition-all duration-200 hover:scale-125 ${
+                                      idx === currentIndex
+                                        ? "w-5 sm:w-6 h-2 bg-white"
+                                        : "w-2 h-2 bg-white/50 hover:bg-white/70"
+                                    }`}
+                                    aria-label={`Go to image ${idx + 1}`}
+                                  />
+                                ))}
+                              </div>
+
+                              <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-black/50 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
+                                {currentIndex + 1} / {totalImages}
+                              </div>
                             </>
-                          )}
-
-                          {/* Dots Indicator - Mobile & Desktop */}
-                          {totalImages > 1 && (
-                            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
-                              {p.images.map((_, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => handleDotClick(p._id, idx)}
-                                  className={`rounded-full transition ${
-                                    idx === currentIndex
-                                      ? "w-5 sm:w-6 h-2 bg-white"
-                                      : "w-2 h-2 bg-white/50 hover:bg-white/70"
-                                  }`}
-                                  aria-label={`Go to image ${idx + 1}`}
-                                />
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Image Counter - Mobile & Desktop */}
-                          {totalImages > 1 && (
-                            <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-black/50 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
-                              {currentIndex + 1} / {totalImages}
-                            </div>
                           )}
                         </div>
                       ) : (
@@ -168,7 +189,6 @@ export default function Projects() {
                       )}
                     </div>
 
-                    {/* Project Details */}
                     <div>
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <MapPin className="h-3.5 w-3.5" /> {p.location}
@@ -178,17 +198,15 @@ export default function Projects() {
                       <div className="mt-6 flex flex-wrap gap-3">
                         <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm"><BedDouble className="h-4 w-4 text-primary" /> {p.beds} bedrooms</span>
                         <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm"><Bath className="h-4 w-4 text-primary" /> {p.baths} bathrooms</span>
-                        {p.features && p.features.length > 0 && (
-                          p.features.map((feature, idx) => (
-                            <span key={idx} className="inline-flex items-center rounded-full bg-secondary px-4 py-2 text-sm">
-                              {feature}
-                            </span>
-                          ))
-                        )}
+                        {p.features?.map((feature, idx) => (
+                          <span key={idx} className="inline-flex items-center rounded-full bg-secondary px-4 py-2 text-sm">
+                            {feature}
+                          </span>
+                        ))}
                       </div>
                       <Link
                         to="/#contact"
-                        className="mt-8 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm hover:opacity-90 transition"
+                        className="mt-8 inline-flex items-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
                       >
                         Enquire about this home
                       </Link>
