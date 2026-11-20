@@ -39,10 +39,21 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-background/10">
-        <p className="mx-auto max-w-7xl px-5 sm:px-8 py-5 text-xs text-background/60">
-          © {new Date().getFullYear()} Jelegs Real Estate. All rights reserved.
-        </p>
-      </div>
+  <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-5 text-xs text-background/60 sm:flex-row sm:px-8">
+    <p>© {new Date().getFullYear()} Jelegs Real Estate. All rights reserved.</p>
+    <p>
+      Built by{" "}
+      <a
+        href="https://abeldev.vercel.app"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block font-medium text-background/90 transition-all duration-200 hover:scale-105 hover:text-primary"
+      >
+        Abeldev
+      </a>
+    </p>
+  </div>
+</div>
     </footer>
   );
 }
