@@ -44,27 +44,29 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-secondary/40 px-5">
+    <div className="flex min-h-screen items-center justify-center bg-secondary/40 px-4 py-8 sm:px-5">
       <div className="w-full max-w-md">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <img src={logo} alt="Jelegs Real Estate" className="h-14 w-14 object-contain" />
-          <h1 className="mt-4 text-2xl font-bold tracking-tight">Admin panel</h1>
+        <div className="mb-6 flex flex-col items-center text-center sm:mb-8">
+          <img src={logo} alt="Jelegs Real Estate" className="h-12 w-12 object-contain sm:h-14 sm:w-14" />
+          <h1 className="mt-3 text-xl font-bold tracking-tight sm:mt-4 sm:text-2xl">Admin panel</h1>
           <p className="mt-1 text-sm text-muted-foreground">Jelegs Real Estate Limited</p>
         </div>
 
-        <div className="rounded-3xl border border-border/60 bg-background p-8 shadow-[var(--shadow-elegant)]">
+        <div className="rounded-3xl border border-border/60 bg-background p-6 shadow-[var(--shadow-elegant)] sm:p-8">
           {welcomeName ? (
             <div className="flex flex-col items-center py-6 text-center animate-in fade-in zoom-in-95 duration-500">
               <span className="grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary">
                 <CheckCircle2 className="h-7 w-7" />
               </span>
-              <h2 className="mt-4 text-2xl font-bold tracking-tight">Welcome, {welcomeName}</h2>
+              <h2 className="mt-4 break-words text-xl font-bold tracking-tight sm:text-2xl">
+                Welcome, {welcomeName}
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">Taking you to your dashboard...</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <h2 className="text-xl font-bold tracking-tight">Sign in</h2>
+                <h2 className="text-lg font-bold tracking-tight sm:text-xl">Sign in</h2>
                 <p className="mt-1 text-sm text-muted-foreground">Enter your details to continue.</p>
               </div>
 
@@ -75,39 +77,43 @@ const AdminLogin = () => {
               )}
 
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Email</label>
+                <label htmlFor="email" className="text-xs font-medium text-muted-foreground">Email</label>
                 <div className="relative mt-1">
                   <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
+                    id="email"
                     type="email"
                     required
                     autoComplete="email"
+                    inputMode="email"
+                    autoCapitalize="none"
                     placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-input bg-background py-3 pl-10 pr-4 text-sm transition focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full rounded-xl border border-input bg-background py-3 pl-10 pr-4 text-base transition focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Password</label>
+                <label htmlFor="password" className="text-xs font-medium text-muted-foreground">Password</label>
                 <div className="relative mt-1">
                   <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     required
                     autoComplete="current-password"
                     placeholder="Your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-xl border border-input bg-background py-3 pl-10 pr-11 text-sm transition focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full rounded-xl border border-input bg-background py-3 pl-10 pr-12 text-base transition focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
                     aria-label={showPassword ? "Hide password" : "Show password"}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+                    className="absolute right-1 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center text-muted-foreground transition hover:text-foreground active:scale-90"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -117,7 +123,7 @@ const AdminLogin = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-medium text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-medium text-primary-foreground transition-all duration-200 hover:scale-[1.02] hover:opacity-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
               >
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {loading ? "Signing in..." : "Sign in"}
